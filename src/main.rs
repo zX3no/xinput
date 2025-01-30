@@ -9,6 +9,9 @@ fn main() {
 
         println!("{:#?}", state);
 
+        let keystroke = get_keystroke(0).unwrap();
+        println!("{:#?}", keystroke);
+
         #[allow(deprecated)]
         std::thread::sleep_ms(100);
     }

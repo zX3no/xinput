@@ -122,35 +122,36 @@ pub struct XINPUT_GAMEPAD {
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct XINPUT_KEYSTROKE {
-    virtual_key: u16,
-    unicode: u16,
-    flags: u16,
-    user_index: u8,
-    hid_code: u8,
+    pub virtual_key: u16,
+    pub unicode: u16,
+    pub flags: u16,
+    pub user_index: u8,
+    pub hid_code: u8,
 }
 
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct XINPUT_CAPABILITIES {
-    controller_type: u8,
-    controller_sub_type: u8,
+    pub controller_type: u8,
+    pub controller_sub_type: u8,
     ///Features of the controller.
-    flags: u16,
-    gamepad: XINPUT_GAMEPAD,
-    vibration: XINPUT_VIBRATION,
+    pub flags: u16,
+    pub gamepad: XINPUT_GAMEPAD,
+    pub vibration: XINPUT_VIBRATION,
 }
+
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct XINPUT_VIBRATION {
-    left_motor_speed: u16,
-    right_motor_speed: u16,
+    pub left_motor_speed: u16,
+    pub right_motor_speed: u16,
 }
 
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct XINPUT_BATTERY_INFORMATION {
-    battery_type: u8,
-    battery_level: u8,
+    pub battery_type: u8,
+    pub battery_level: u8,
 }
 
 #[repr(C)]
@@ -163,6 +164,7 @@ pub struct GUID {
 }
 
 pub const ERROR_DEVICE_NOT_CONNECTED: u32 = 1167;
+pub const ERROR_EMPTY: u32 = 4306;
 
 pub const XINPUT_DEVTYPE_GAMEPAD: u8 = 0x01;
 

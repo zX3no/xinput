@@ -17,3 +17,17 @@ pub fn get_state(user_index: u32) -> Result<XINPUT_STATE, &'static str> {
         }
     }
 }
+
+//Not sure what the point of this function even is...
+pub fn get_keystroke(user_index: u32) -> Result<XINPUT_KEYSTROKE, &'static str> {
+    unsafe {
+        let mut keystroke = core::mem::zeroed();
+        let result = XInputGetKeystroke(user_index, 0, &mut keystroke);
+
+        match result {
+            0 | ERROR_EMPTY => Ok(keystroke),
+            ERROR_DEVICE_NOT_CONNECTED => Err("Controller not connected."),
+            _ => todo!("{}", result),
+        }
+    }
+}
