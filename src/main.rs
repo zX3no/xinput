@@ -12,6 +12,11 @@ fn main() {
                 print!("\x1B[1;1H");
                 print!("\x1B[2J");
                 println!("{:#?}", state);
+
+                let gamepad = state.gamepad;
+                if gamepad.buttons == Button::A | Button::B && gamepad.left_trigger > 30 {
+                    println!("Pressed A, B and the left trigger.");
+                }
             }
         }
 

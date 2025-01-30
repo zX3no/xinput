@@ -40,35 +40,52 @@ unsafe extern "system" {
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct XINPUT_STATE {
-    packet_number: u32,
-    gamepad: XINPUT_GAMEPAD,
+    pub packet_number: u32,
+    pub gamepad: XINPUT_GAMEPAD,
 }
 
 #[derive(Copy, Clone, PartialEq, Eq, Default)]
 #[repr(transparent)]
-pub struct XInputGamepad(pub u32);
+pub struct Button(pub u16);
 
-impl XInputGamepad {
-    pub const DPAD_UP: u32 = 0x0001;
-    pub const DPAD_DOWN: u32 = 0x0002;
-    pub const DPAD_LEFT: u32 = 0x0004;
-    pub const DPAD_RIGHT: u32 = 0x0008;
-    pub const START: u32 = 0x0010;
-    pub const BACK: u32 = 0x0020;
-    pub const LEFT_THUMB: u32 = 0x0040;
-    pub const RIGHT_THUMB: u32 = 0x0080;
-    pub const LEFT_SHOULDER: u32 = 0x0100;
-    pub const RIGHT_SHOULDER: u32 = 0x0200;
-    pub const A: u32 = 0x1000;
-    pub const B: u32 = 0x2000;
-    pub const X: u32 = 0x4000;
-    pub const Y: u32 = 0x8000;
+impl Button {
+    pub const DPAD_UP: u16 = 0x0001;
+    pub const DPAD_DOWN: u16 = 0x0002;
+    pub const DPAD_LEFT: u16 = 0x0004;
+    pub const DPAD_RIGHT: u16 = 0x0008;
+    pub const START: u16 = 0x0010;
+    pub const BACK: u16 = 0x0020;
+    pub const LEFT_THUMB: u16 = 0x0040;
+    pub const RIGHT_THUMB: u16 = 0x0080;
+    pub const LEFT_SHOULDER: u16 = 0x0100;
+    pub const RIGHT_SHOULDER: u16 = 0x0200;
+    pub const A: u16 = 0x1000;
+    pub const B: u16 = 0x2000;
+    pub const X: u16 = 0x4000;
+    pub const Y: u16 = 0x8000;
 }
 
-impl std::fmt::Debug for XInputGamepad {
+impl PartialEq<u16> for Button {
+    fn eq(&self, other: &u16) -> bool {
+        self.0.eq(other)
+    }
+
+    fn ne(&self, other: &u16) -> bool {
+        !self.0.eq(other)
+    }
+}
+
+impl std::ops::BitOr for Button {
+    type Output = Self;
+
+    fn bitor(self, rhs: Self) -> Self::Output {
+        Self(self.0 | rhs.0)
+    }
+}
+
+impl std::fmt::Debug for Button {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let value = self.0;
-
         let mappings = [
             (Self::DPAD_UP, "DPAD_UP"),
             (Self::DPAD_DOWN, "DPAD_DOWN"),
@@ -104,7 +121,8 @@ impl std::fmt::Debug for XInputGamepad {
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 ///https://learn.microsoft.com/en-us/windows/win32/api/xinput/ns-xinput-xinput_gamepad
 pub struct XINPUT_GAMEPAD {
-    pub buttons: XInputGamepad,
+    ///Bitflags for the buttons pressed. Excludes triggers which are found bellow.
+    pub buttons: Button,
     ///The value is between 0 and 255.
     pub left_trigger: u8,
     ///The value is between 0 and 255.
