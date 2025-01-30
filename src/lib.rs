@@ -63,6 +63,23 @@ impl Button {
     pub const B: u16 = 0x2000;
     pub const X: u16 = 0x4000;
     pub const Y: u16 = 0x8000;
+
+    /// Check which buttons are pressed, can use `Button::A` or `Button(0x1000)` or `Button(Button::DPAD_UP)`
+    /// ```
+    /// if buttons.contains(Button::A | Button::DPAD_UP) {
+    ///     ...
+    /// }
+    /// ```
+    pub fn contains<T: Into<u16>>(&self, buttons: T) -> bool {
+        let buttons = buttons.into();
+        self.0 & buttons == buttons
+    }
+}
+
+impl Into<u16> for Button {
+    fn into(self) -> u16 {
+        self.0
+    }
 }
 
 impl PartialEq<u16> for Button {

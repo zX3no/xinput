@@ -10,7 +10,7 @@ fn main() {
                 println!("{:#?}", state);
 
                 let gamepad = state.gamepad;
-                if gamepad.buttons == Button::A | Button::B && gamepad.left_trigger > 30 {
+                if gamepad.buttons.contains(Button::A | Button::B) && gamepad.left_trigger > 30 {
                     println!("Pressed A, B and the left trigger.");
                 }
             }
