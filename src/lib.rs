@@ -1,5 +1,8 @@
 #![allow(non_snake_case, non_camel_case_types)]
 
+pub mod wrapper;
+pub use wrapper::*;
+
 #[link(name = "xinput")]
 unsafe extern "system" {
     pub fn XInputGetState(user_index: u32, state: *mut XINPUT_STATE) -> u32;
@@ -35,17 +38,73 @@ unsafe extern "system" {
 }
 
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct XINPUT_STATE {
     packet_number: u32,
     gamepad: XINPUT_GAMEPAD,
 }
 
+#[derive(Copy, Clone, PartialEq, Eq, Default)]
+#[repr(transparent)]
+pub struct XInputGamepad(pub u32);
+
+impl XInputGamepad {
+    pub const DPAD_UP: u32 = 0x0001;
+    pub const DPAD_DOWN: u32 = 0x0002;
+    pub const DPAD_LEFT: u32 = 0x0004;
+    pub const DPAD_RIGHT: u32 = 0x0008;
+    pub const START: u32 = 0x0010;
+    pub const BACK: u32 = 0x0020;
+    pub const LEFT_THUMB: u32 = 0x0040;
+    pub const RIGHT_THUMB: u32 = 0x0080;
+    pub const LEFT_SHOULDER: u32 = 0x0100;
+    pub const RIGHT_SHOULDER: u32 = 0x0200;
+    pub const A: u32 = 0x1000;
+    pub const B: u32 = 0x2000;
+    pub const X: u32 = 0x4000;
+    pub const Y: u32 = 0x8000;
+}
+
+impl std::fmt::Debug for XInputGamepad {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let value = self.0;
+
+        let mappings = [
+            (Self::DPAD_UP, "DPAD_UP"),
+            (Self::DPAD_DOWN, "DPAD_DOWN"),
+            (Self::DPAD_LEFT, "DPAD_LEFT"),
+            (Self::DPAD_RIGHT, "DPAD_RIGHT"),
+            (Self::START, "START"),
+            (Self::BACK, "BACK"),
+            (Self::LEFT_THUMB, "LEFT_THUMB"),
+            (Self::RIGHT_THUMB, "RIGHT_THUMB"),
+            (Self::LEFT_SHOULDER, "LEFT_SHOULDER"),
+            (Self::RIGHT_SHOULDER, "RIGHT_SHOULDER"),
+            (Self::A, "A"),
+            (Self::B, "B"),
+            (Self::X, "X"),
+            (Self::Y, "Y"),
+        ];
+
+        let mut buttons = [""; 14];
+        let mut count = 0;
+
+        for &(mask, name) in &mappings {
+            if value & mask != 0 {
+                buttons[count] = name;
+                count += 1;
+            }
+        }
+
+        write!(f, "XInputGamepad({})", buttons[..count].join(" | "))
+    }
+}
+
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 ///https://learn.microsoft.com/en-us/windows/win32/api/xinput/ns-xinput-xinput_gamepad
 pub struct XINPUT_GAMEPAD {
-    pub buttons: u16,
+    pub buttons: XInputGamepad,
     ///The value is between 0 and 255.
     pub left_trigger: u8,
     ///The value is between 0 and 255.
@@ -61,7 +120,7 @@ pub struct XINPUT_GAMEPAD {
 }
 
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct XINPUT_KEYSTROKE {
     virtual_key: u16,
     unicode: u16,
@@ -71,7 +130,7 @@ pub struct XINPUT_KEYSTROKE {
 }
 
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct XINPUT_CAPABILITIES {
     controller_type: u8,
     controller_sub_type: u8,
@@ -81,21 +140,21 @@ pub struct XINPUT_CAPABILITIES {
     vibration: XINPUT_VIBRATION,
 }
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct XINPUT_VIBRATION {
     left_motor_speed: u16,
     right_motor_speed: u16,
 }
 
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct XINPUT_BATTERY_INFORMATION {
     battery_type: u8,
     battery_level: u8,
 }
 
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct GUID {
     pub Data1: u32,
     pub Data2: u16,
@@ -103,7 +162,10 @@ pub struct GUID {
     pub Data4: [u8; 8],
 }
 
+pub const ERROR_DEVICE_NOT_CONNECTED: u32 = 1167;
+
 pub const XINPUT_DEVTYPE_GAMEPAD: u8 = 0x01;
+
 pub const XINPUT_DEVSUBTYPE_GAMEPAD: u8 = 0x01;
 pub const XINPUT_DEVSUBTYPE_UNKNOWN: u8 = 0x00;
 pub const XINPUT_DEVSUBTYPE_WHEEL: u8 = 0x02;
@@ -115,42 +177,36 @@ pub const XINPUT_DEVSUBTYPE_GUITAR_ALTERNATE: u8 = 0x07;
 pub const XINPUT_DEVSUBTYPE_DRUM_KIT: u8 = 0x08;
 pub const XINPUT_DEVSUBTYPE_GUITAR_BASS: u8 = 0x0B;
 pub const XINPUT_DEVSUBTYPE_ARCADE_PAD: u8 = 0x13;
+
 pub const XINPUT_CAPS_VOICE_SUPPORTED: u16 = 0x0004;
 pub const XINPUT_CAPS_FFB_SUPPORTED: u16 = 0x0001;
 pub const XINPUT_CAPS_WIRELESS: u16 = 0x0002;
 pub const XINPUT_CAPS_PMD_SUPPORTED: u16 = 0x0008;
 pub const XINPUT_CAPS_NO_NAVIGATION: u16 = 0x0010;
-pub const XINPUT_GAMEPAD_DPAD_UP: u16 = 0x0001;
-pub const XINPUT_GAMEPAD_DPAD_DOWN: u16 = 0x0002;
-pub const XINPUT_GAMEPAD_DPAD_LEFT: u16 = 0x0004;
-pub const XINPUT_GAMEPAD_DPAD_RIGHT: u16 = 0x0008;
-pub const XINPUT_GAMEPAD_START: u16 = 0x0010;
-pub const XINPUT_GAMEPAD_BACK: u16 = 0x0020;
-pub const XINPUT_GAMEPAD_LEFT_THUMB: u16 = 0x0040;
-pub const XINPUT_GAMEPAD_RIGHT_THUMB: u16 = 0x0080;
-pub const XINPUT_GAMEPAD_LEFT_SHOULDER: u16 = 0x0100;
-pub const XINPUT_GAMEPAD_RIGHT_SHOULDER: u16 = 0x0200;
-pub const XINPUT_GAMEPAD_A: u16 = 0x1000;
-pub const XINPUT_GAMEPAD_B: u16 = 0x2000;
-pub const XINPUT_GAMEPAD_X: u16 = 0x4000;
-pub const XINPUT_GAMEPAD_Y: u16 = 0x8000;
+
 pub const XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE: i16 = 7849;
 pub const XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE: i16 = 8689;
 pub const XINPUT_GAMEPAD_TRIGGER_THRESHOLD: u8 = 30;
+
 pub const XINPUT_FLAG_GAMEPAD: u32 = 0x00000001;
+
 pub const BATTERY_DEVTYPE_GAMEPAD: u8 = 0x00;
 pub const BATTERY_DEVTYPE_HEADSET: u8 = 0x01;
+
 pub const BATTERY_TYPE_DISCONNECTED: u8 = 0x00;
 pub const BATTERY_TYPE_WIRED: u8 = 0x01;
 pub const BATTERY_TYPE_ALKALINE: u8 = 0x02;
 pub const BATTERY_TYPE_NIMH: u8 = 0x03;
 pub const BATTERY_TYPE_UNKNOWN: u8 = 0xFF;
+
 pub const BATTERY_LEVEL_EMPTY: u8 = 0x00;
 pub const BATTERY_LEVEL_LOW: u8 = 0x01;
 pub const BATTERY_LEVEL_MEDIUM: u8 = 0x02;
 pub const BATTERY_LEVEL_FULL: u8 = 0x03;
+
 pub const XUSER_MAX_COUNT: u32 = 4;
 pub const XUSER_INDEX_ANY: u32 = 0x000000FF;
+
 pub const VK_PAD_A: u16 = 0x5800;
 pub const VK_PAD_B: u16 = 0x5801;
 pub const VK_PAD_X: u16 = 0x5802;
@@ -183,6 +239,7 @@ pub const VK_PAD_RTHUMB_UPLEFT: u16 = 0x5834;
 pub const VK_PAD_RTHUMB_UPRIGHT: u16 = 0x5835;
 pub const VK_PAD_RTHUMB_DOWNRIGHT: u16 = 0x5836;
 pub const VK_PAD_RTHUMB_DOWNLEFT: u16 = 0x5837;
+
 pub const XINPUT_KEYSTROKE_KEYDOWN: u16 = 0x0001;
 pub const XINPUT_KEYSTROKE_KEYUP: u16 = 0x0002;
 pub const XINPUT_KEYSTROKE_REPEAT: u16 = 0x0004;

@@ -1,17 +1,15 @@
 use xinput::*;
 
 fn main() {
-    unsafe {
-        XInputEnable(1);
-        loop {
-            let mut state = core::mem::zeroed();
-            let _ = XInputGetState(0, &mut state);
+    loop {
+        let state = get_state(0).unwrap();
 
-            print!("\x1B[2J\x1B[H");
-            println!("{:#?}", state);
+        print!("\x1B[1;1H");
+        print!("\x1B[2J");
 
-            #[allow(deprecated)]
-            std::thread::sleep_ms(100);
-        }
+        println!("{:#?}", state);
+
+        #[allow(deprecated)]
+        std::thread::sleep_ms(100);
     }
 }
