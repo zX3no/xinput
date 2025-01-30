@@ -44,8 +44,8 @@ pub struct XINPUT_STATE {
     pub gamepad: XINPUT_GAMEPAD,
 }
 
-#[derive(Copy, Clone, PartialEq, Eq, Default)]
 #[repr(transparent)]
+#[derive(Copy, Clone, PartialEq, Eq, Default)]
 pub struct Button(pub u16);
 
 impl Button {
