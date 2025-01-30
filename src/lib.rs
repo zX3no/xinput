@@ -142,6 +142,8 @@ pub struct XINPUT_CAPABILITIES {
 
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
+/// Set the vibration speed of each motor.
+/// 0 to 65,535.
 pub struct XINPUT_VIBRATION {
     pub left_motor_speed: u16,
     pub right_motor_speed: u16,
